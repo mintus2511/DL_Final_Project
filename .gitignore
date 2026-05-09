@@ -1,0 +1,22 @@
+# Virtual environment
+venv/
+
+# Raw datasets
+data/nasdaq/csv/
+data/vietnam/stock-historical-data/
+data/vietnam/financial-ratio/
+data/vietnam/industry-analysis/
+data/vietnam/dividend-history/
+
+# Large/temporary files
+*.zip
+*.rar
+*.7z
+*.h5
+*.keras
+*.pkl
+*.joblib
+
+# Notebook cache
+.ipynb_checkpoints/
+__pycache__/
