@@ -1,40 +1,93 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
 import numpy as np
 import tensorflow as tf
-from fastapi import FastAPI
-from pydantic import BaseModel
 
-app = FastAPI(
-    title="Stock Prediction API",
-    description="REST API for deep learning stock price prediction",
-    version="1.0"
-)
 
-MODEL_PATH = "../models/task2_1_vietnam_cnn.keras"
+# ============================================================
+# Load trained model
+# ============================================================
+
+MODEL_PATH = "../models/task2_vietnam_cnn.keras"
 
 model = tf.keras.models.load_model(MODEL_PATH)
 
 
-class StockInput(BaseModel):
-    data: list
+# ============================================================
+# FastAPI app
+# ============================================================
 
+app = FastAPI(
+    title="Vietnam Stock Price Prediction API",
+    description="REST API for serving a trained CNN stock price prediction model.",
+    version="1.0"
+)
+
+
+# ============================================================
+# Input schema
+# ============================================================
+
+class StockInput(BaseModel):
+    data: List[List[float]]
+
+
+# ============================================================
+# Root endpoint
+# ============================================================
 
 @app.get("/")
-def home():
+def root():
     return {
-        "message": "Stock Prediction API is running"
+        "message": "Vietnam Stock Price Prediction API is running.",
+        "model": "CNN stock prediction model",
+        "expected_input_shape": "30 days x 5 features"
     }
 
+
+# ============================================================
+# Health check endpoint
+# ============================================================
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "model_loaded": True
+    }
+
+
+# ============================================================
+# Prediction endpoint
+# ============================================================
 
 @app.post("/predict")
 def predict(input_data: StockInput):
-    arr = np.array(input_data.data, dtype=np.float32)
+    try:
+        data = np.array(input_data.data, dtype=np.float32)
 
-    # Expected shape: (1, 30, 5)
-    if arr.ndim == 2:
-        arr = np.expand_dims(arr, axis=0)
+        if data.shape != (30, 5):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid input shape {data.shape}. Expected shape is (30, 5)."
+            )
 
-    prediction = model.predict(arr)
+        data = np.expand_dims(data, axis=0)
 
-    return {
-        "prediction": prediction.tolist()
-    }
+        prediction = model.predict(data)
+
+        return {
+            "prediction": prediction.tolist(),
+            "input_shape": list(data.shape),
+            "message": "Prediction completed successfully."
+        }
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
