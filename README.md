@@ -89,7 +89,7 @@ The SaaS application supports:
 
 ## Streamlit SaaS Dashboard
 
-![Streamlit Dashboard](results/figures/streamlit_dashboard.png)
+![Streamlit Dashboard](results/figures/task5_2_streamlit_app(2).png)
 
 ---
 
