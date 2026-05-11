@@ -1,0 +1,4 @@
+Task,Model,RMSE,MAE
+Task 1.1 - Next-day prediction,CNN,0.0254,0.0173
+Task 1.2 - 7th day prediction,LSTM,0.1128,0.0738
+Task 1.3 - Next 7 days prediction,CNN,0.0645,0.0442
